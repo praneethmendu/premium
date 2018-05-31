@@ -6,6 +6,12 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
 
+// telebot
+const TeleBot = require('telebot');
+const bot = new TeleBot('455360254:AAG3YJQVNn_ejPCr7e8kRrvKJX0eqTed5Rk');
+
+
+
 let read = [];
 let read1 = [];
 fs.readdir('/home/mendu/git/pre2/logs/', (err, files) => {
@@ -49,8 +55,14 @@ function rate() {
   io.emit('live', { rate: rate, time: n });
 
   if (rate > 60 && rate < 80) {
-    if (rate < 64.5) {
+    if (rate > 74.2) {
       io.emit('play', 'dummy');
+      bot.sendMessage(442494900, 'trade \n' + "high " + rate );
+    }
+
+    if (rate < 70) {
+      io.emit('play', 'dummy');
+      bot.sendMessage(442494900, 'trade \n' + "low " + rate );
     }
     if (store.push({ time: n, rate: koin / us }) > 49) {
       fs.writeFile(
@@ -76,7 +88,7 @@ function ratezeb() {
   io.emit('zeb', { rate: rate, time: n });
 
   if (rate > 60 && rate < 80) {
-    if (rate > 74.5) {
+    if (rate > 74.2) {
       io.emit('play', 'dummy');
     }
     if (store1.push({ time: n, rate: zeb / us }) > 49) {
@@ -134,13 +146,13 @@ function getzeb() {
 }
 
 function getus() {
-  request('https://api.binance.com/api/v1/trades?symbol=ETHUSDT', function(
+  request('https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT', function(
     error,
     response,
     body
   ) {
     try {
-      us = JSON.parse(body)[0].price;
+      us = JSON.parse(body).price;
       rate();
       console.log(us, 'USD');
     } catch (e) {
